@@ -129,3 +129,16 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+    
+}
+
+EMAIL_HOST = 'smtp.gmail.com' # Use this for Gmail
+EMAIL_PORT = 587             # Use 587 for TLS
+EMAIL_USE_TLS = True         # Recommended for security (encryption)
+DEFAULT_FROM_EMAIL = 'EasyKart <sameesheikh02@gmail.com>'
+EMAIL_HOST_USER = 'sameesheikh02@gmail.com'
+EMAIL_HOST_PASSWORD = 'klhf whgm efjh tqvs'  # Use environment variables for security in production
