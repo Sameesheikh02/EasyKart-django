@@ -5,24 +5,42 @@
 <div class="container">
 
 <!-- ============================ COMPONENT 1 ================================= -->
-{% if not cart_items %}
-<h2 class="text-center">Your Shopping cart is empty</h2>
-<br>
-<div class="text-center">
-    <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping</a>
-</div>    
-
-{% else %}
+<h4 class = 'text-center mb-10'>Review Your Order and Make Payment</h4>
 <div class="row">
-	<aside class="col-lg-9">
-<div class="card">
+	<aside class="col-lg-8">
+ <!-- card.// -->
+
+<div class="card"> 
+<h5 class="card-header">Billing Address</h5>
+<div class="card-body">
+<p class="card-text mb-0" >{{ order.full_name }}</p>
+<p class="card-text mb-0" >{{ order.full_address }}</p>
+<p class="card-text mb-0">{{ order.city }}, {{ order.state }}</p>
+<p class="card-text mb-0">{{ order.country }}</p>
+<p class="card-text mb-0">{{ order.email }}</p>
+<p class="card-text mb-0">{{ order.phone }}</p>
+{% if order.order_note %}
+<b>Order Note: </b> {{ order.order_note }}
+{% endif %}
+</div> <!-- card-body.// -->
+</div>
+ <!-- card.// -->
+<div class="card"> 
+<h5 class="card-header">Payment Methods</h5>
+<div class="card-body">
+<p class="card-text">Cash on Delivery</p>
+</div> <!-- card-body.// -->
+</div> 
+<div class="card"> 
+<h5 class="card-header">Review Products</h5>
+<div class="card-body">
 <table class="table table-borderless table-shopping-cart">
 <thead class="text-muted">
 <tr class="small text-uppercase">
   <th scope="col">Product</th>
   <th scope="col" width="120">Quantity</th>
   <th scope="col" width="120">Price</th>
-  <th scope="col" class="text-right" width="200"> </th>
+
 </tr>
 </thead>
 <tbody>
@@ -34,35 +52,25 @@
 			<figcaption class="info">
 				<a href="{{ cart_item.product.get_url }}" class="title text-dark">{{ cart_item.product.product_name }}</a>
 				<p class="text-muted small">
-				{% if cart_item.variation.all %}
-				{% for variation in cart_item.variation.all %}
-					{{ variation.variation_category | capfirst }}: {{ variation.variation_value | capfirst }}<br>
-				{% endfor %}
-				{% endif %}
+				{% if cart_item.variation %}
+    {# handle m2m or single FK #}
+    {% if cart_item.variation.all %}
+        {% for variation in cart_item.variation.all %}
+            {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}<br>
+        {% endfor %}
+    {% else %}
+        {% if cart_item.variation %}
+            {{ cart_item.variation.variation_category|capfirst }}: {{ cart_item.variation.variation_value|capfirst }}<br>
+        {% endif %}
+    {% endif %}
+{% endif %}
 				</p>
 			</figcaption>
 		</figure>
 	</td>
 	<td> 
 		<!-- col.// -->
-					<div class="col"> 
-						<div class="input-group input-spinner">
-							<div class="input-group-prepend">
-							<a href="{% url 'remove_cart' cart_item.product.id cart_item.id %}" class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </a>
-							</div>
-							<input type="text" class="form-control"  value="{{cart_item.quantity}}">
-							<div class="input-group-append">
-							<form action="{% url 'add_cart' cart_item.product.id %}" method="POST">
-								{% csrf_token %}
-								{% for variation in cart_item.variation.all %}
-									<input type="hidden" name="{{ variation.variation_category | lower }}" value="{{ variation.variation_value | capfirst }}">
-								{% endfor %}
-							<button type="submit" class="btn btn-light" id="button-minus"> <i class="fa fa-plus"></i> </button>
-							</form>
-							</div>
-
-						</div> <!-- input-group.// -->
-					</div> <!-- col.// -->
+					<label for=''>{{cart_item.quantity}}</label> <!-- col.// -->
 	</td>
 	<td> 
 		<div class="price-wrap"> 
@@ -70,18 +78,16 @@
 			<small class="text-muted"> Rs {{ cart_item.product.price }} each </small> 
 		</div> <!-- price-wrap .// -->
 	</td>
-	<td class="text-right"> 
-	<a href="{% url 'remove_cart_item' cart_item.product.id cart_item.id %}" onclick="return confirm('Are you sure you want to remove this item?')" class="btn btn-danger"> Remove</a>
-	</td>
+	
 </tr>
 {% endfor %}
 
 </tbody>
 </table>
-</div> <!-- card.// -->
-
+</div> <!-- card-body.// -->
+</div> 
 	</aside> <!-- col.// -->
-	<aside class="col-lg-3">
+	<aside class="col-lg-4">
 
 		<div class="card">
 		<div class="card-body">
@@ -99,8 +105,11 @@
 			</dl>
 			<hr>
 			
-			<a href="{% url 'checkout' %}" class="btn btn-primary btn-block"> Checkout </a>
-			<a href="{% url 'store' %}" class="btn btn-light btn-block">Continue Shopping</a>
+			<form method="post" action="{% url 'confirm_order' %}">
+  {% csrf_token %}
+  <input type="hidden" name="order_number" value="{{ order.order_number }}">
+  <button type="submit" class="btn btn-primary btn-block"> Confirm Order </button>
+</form>
 		</div> <!-- card-body.// -->
 		</div> <!-- card.// -->
 
@@ -109,7 +118,7 @@
 
 </div> <!-- row.// -->
 <!-- ============================ COMPONENT 1 END .// ================================= -->
-{% endif %}
+
 </div> <!-- container .//  -->
 </section>
 <!-- ========================= SECTION  END// ========================= -->
